@@ -1,21 +1,28 @@
-import React from 'react';
-import axios from 'axios';
+import React, { useEffect,useState } from 'react';
 
-const API = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
+
+import axios from "axios";
+
+const API = process.env.REACT_APP_API_URL || "http://localhost:4000/api";
 
 export default function Lesson({ lesson, onBack, onQuiz }) {
+    const[progress, setProgress] = useState(null);
 
     const saveProgress = async () => {
         try {
             await axios.post(`${API}/lessons/progress`, {
-                studentId: 'guest',
+                studentId: "guest",
                 lessonId: lesson.id,
             });
-            alert('Progress saved (demo)');
+            alert("Progress saved (demo)");
         } catch (e) {
-            console.log('Save progress failed', e);
+            console.log("Save progress failed", e);
         }
     };
+
+    useEffect(() => {
+        console.log("Lesson mounted");
+    }, []);
 
     return (
         <div className="lesson-page">
@@ -25,7 +32,6 @@ export default function Lesson({ lesson, onBack, onQuiz }) {
 
             <h2>{lesson.title}</h2>
 
-            {/* STEM subject label */}
             <p className="lesson-subject">
                 STEM Subject: <strong>{lesson.subject}</strong>
             </p>
