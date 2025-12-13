@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-
+import "./Auth.css";
+import axios from 'axios';
 const API = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
 
 export default function Login({ onSuccess }) {
@@ -9,15 +10,16 @@ export default function Login({ onSuccess }) {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
         try {
-            const res = await fetch(`${API}/auth/login`, {
+            const res = await fetch('http://localhost:4000/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password }),
             });
 
             const data = await res.json();
@@ -27,52 +29,62 @@ export default function Login({ onSuccess }) {
                 return;
             }
 
-            // store token for later protected calls
+
             localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
 
             if (onSuccess) onSuccess();
-            else navigate('/'); // fallback
+            else navigate('/');
+
         } catch (err) {
+            console.error(err);
             setError('Network error');
         }
+
     };
 
     return (
         <div className="auth-page">
-            <h2>Login</h2>
-            <form className="auth-form" onSubmit={handleSubmit}>
-                <label>
-                    Email
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        required
-                    />
-                </label>
+            <div className="auth-card">
+                <div className="auth-header">
+                    <h1>Login</h1>
+                    <p>Sign in to continue</p>
+                </div>
 
-                <label>
-                    Password
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        required
-                    />
-                </label>
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <label>
+                        Email
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            placeholder="Enter your email"
+                        />
+                    </label>
 
-                {error && <p className="auth-error">{error}</p>}
+                    <label>
+                        Password
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            placeholder="Enter your password"
+                        />
+                    </label>
 
-                <button type="submit">Login</button>
-            </form>
+                    <button type="submit" className="auth-primary">
+                        Login
+                    </button>
 
-            <p>
-                Don&apos;t have an account?{' '}
-                <button type="button" onClick={() => navigate('/signup')}>
-                    Sign up
-                </button>
-            </p>
+                    <label className="auth-remember">
+                        <input type="checkbox" /> Remember me
+                    </label>
+
+                    <p className="auth-footer-text">
+                        Do not have an account? <a href="/signup">Sign up</a>
+                    </p>
+                </form>
+            </div>
         </div>
     );
 }
+

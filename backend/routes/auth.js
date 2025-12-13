@@ -1,64 +1,64 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-
+const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-// In‑memory users (for demo only – replace with DB later)
-const users = [];
+// in-memory store for demo – replace with MongoDB / PostgreSQL
+// signup
+const users = []; // at top of file, outside route handlers
 
-// Signup
 router.post('/signup', async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
+    const { email, password } = req.body;
 
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: 'All fields required' });
-        }
+    const existing = users.find(u => u.email === email);
+    if (existing) return res.status(400).json({ message: 'User already exists' });
 
-        const existing = users.find(u => u.email === email);
-        if (existing) {
-            return res.status(400).json({ message: 'Email already registered' });
-        }
-
-        const hashed = await bcrypt.hash(password, 10);
-        const user = { id: Date.now().toString(), name, email, password: hashed };
-        users.push(user);
-
-        return res.status(201).json({ message: 'User created' });
-    } catch (err) {
-        return res.status(500).json({ message: 'Server error' });
-    }
+    const hash = await bcrypt.hash(password, 10);
+    users.push({ email, password: hash });  // must use key "email"
+    res.status(201).json({ message: 'User created' });
 });
 
-// Login
+
+// login
 router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
+    const { email, password } = req.body;
+    console.log('Login body:', req.body);
 
-        const user = users.find(u => u.email === email);
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
+    const user = users.find(u => u.email === email);
+    console.log('Found user:', user);
 
-        const ok = await bcrypt.compare(password, user.password);
-        if (!ok) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        const token = jwt.sign(
-            { userId: user.id, email: user.email },
-            process.env.JWT_SECRET || 'dev_secret_key',
-            { expiresIn: '6h' }
-        );
-
-        return res.json({
-            token,
-            user: { id: user.id, name: user.name, email: user.email }
-        });
-    } catch (err) {
-        return res.status(500).json({ message: 'Server error' });
+    if (!user) {
+        return res.status(400).json({ message: 'User not found' });
     }
+
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) {
+        return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    const token = jwt.sign({ email }, 'SECRET_KEY');
+    res.json({ token });
 });
 
+function authMiddleware(req, res, next) {
+    const authHeader = req.headers.authorization; // "Bearer <token>"
+    if (!authHeader) return res.status(401).json({ message: 'No token' });
+
+    const token = authHeader.split(' ')[1];
+    try {
+        const payload = jwt.verify(token, 'SECRET_KEY');
+        req.user = payload; // { email }
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+}
+
+// get current user profile
+router.get('/profile', authMiddleware, (req, res) => {
+    const user = users.find(u => u.email === req.user.email);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ email: user.email });
+});
 module.exports = router;
