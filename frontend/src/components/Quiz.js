@@ -20,7 +20,7 @@ export default function Quiz({ lesson, onBack }) {
 
     return (
         <div className="quiz-page">
-            <button className="btn secondary" onClick={onBack}>
+            <button className="btn secondary" style={{ padding: "8px 16px", fontSize: "0.9rem" }} onClick={onBack}>
                 ← Back
             </button>
 
@@ -31,7 +31,7 @@ export default function Quiz({ lesson, onBack }) {
                     <div key={i} className="quiz-question">
                         <label>
                             {i + 1}. {ques.q}{' '}
-                            <span className="quiz-hint">(yes / no)</span>
+                            <span className="quiz-hint">(yes / no) </span>
                         </label>
                         <input
                             name={`q${i}`}
@@ -42,14 +42,17 @@ export default function Quiz({ lesson, onBack }) {
                     </div>
                 ))}
 
-                <button className="btn primary" type="submit">
-                    Submit
-                </button>
+                <div style={{ marginTop: "24px" }}>
+                <button
+                className="btn primary"
+                style={{ padding: "10px 20px", fontSize: "1rem" }}
+                type="submit">Submit</button>
+                </div>
             </form>
 
             {score !== null && (
                 <p className="quiz-score">
-                    You scored {score} / {questions.length}
+                    You scored: {score} / {questions.length}
                 </p>
             )}
         </div>

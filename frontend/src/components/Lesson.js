@@ -26,7 +26,7 @@ export default function Lesson({ lesson, onBack, onQuiz }) {
 
     return (
         <div className="lesson-page">
-            <button className="btn secondary" onClick={onBack}>
+            <button className="btn secondary" style={{ padding: "10px 20px", fontSize: "1rem" }} onClick={onBack}>
                 ← Back
             </button>
 
@@ -40,11 +40,11 @@ export default function Lesson({ lesson, onBack, onQuiz }) {
                 <p>{lesson.content}</p>
             </article>
 
-            <div className="lesson-actions">
-                <button className="btn primary" onClick={onQuiz}>
+            <div className="lesson-actions" style={{display: "flex", gap: "12px"}}>
+                <button className="btn primary" style={{ padding: "10px 20px", fontSize: "1rem" }} onClick={onQuiz}>
                     Take Quiz
                 </button>
-                <button className="btn" onClick={saveProgress}>
+                <button className="btn" style={{ padding: "10px 20px", fontSize: "1rem" }} onClick={saveProgress}>
                     Mark Complete
                 </button>
             </div>
