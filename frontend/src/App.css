@@ -36,7 +36,7 @@
 
 }
 .app-header button:hover {
-    background: #f3f4f6;
+    background: #f3f4f6;    
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
