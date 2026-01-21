@@ -1,90 +1,71 @@
-import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import "./Auth.css";
-import axios from 'axios';
-const API = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Gamepad2, ArrowLeft, Eye } from "lucide-react";
+import "./App.css";
 
-export default function Login({ onSuccess }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+export default function Login() {
+  const navigate = useNavigate();
 
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-
-        try {
-            const res = await fetch('http://localhost:4000/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data.message || 'Login failed');
-                return;
-            }
-
-
-            localStorage.setItem('token', data.token);
-
-            if (onSuccess) onSuccess();
-            else navigate('/');
-
-        } catch (err) {
-            console.error(err);
-            setError('Network error');
-        }
-
-    };
-
-    return (
-        <div className="auth-page">
-            <div className="auth-card">
-                <div className="auth-header">
-                    <h1>Login</h1>
-                    <p>Sign in to continue</p>
-                </div>
-
-                <form className="auth-form" onSubmit={handleSubmit}>
-                    <label>
-                        Email
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            placeholder="Enter your email"
-                        />
-                    </label>
-
-                    <label>
-                        Password
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            placeholder="Enter your password"
-                        />
-                    </label>
-
-                    <button type="submit" className="auth-primary">
-                        Login
-                    </button>
-
-                    <label className="auth-remember">
-                        <input type="checkbox" /> Remember me
-                    </label>
-
-                    <p className="auth-footer-text">
-                        Do not have an account? <a href="/signup">Sign up</a>
-                    </p>
-                </form>
-            </div>
+  return (
+    <div className="auth-container">
+      {/* Left Side (Blue/Green Gradient) */}
+      <div className="auth-left blue-theme">
+        <div className="auth-brand">
+          <Gamepad2 size={32} /> VidyaQuest
         </div>
-    );
-}
+        <h1 className="auth-title">Continue Your <br/> Learning Adventure!</h1>
+        <p className="auth-desc">Pick up where you left off. Your progress, badges, and achievements are waiting for you.</p>
+        
+        <div className="stats-mini-row">
+           <div className="mini-stat">
+             <strong>500+</strong>
+             <span>Active Learners</span>
+           </div>
+           <div className="mini-stat">
+             <strong>10K+</strong>
+             <span>Lessons Done</span>
+           </div>
+        </div>
+      </div>
 
+      {/* Right Side (Form) */}
+      <div className="auth-right">
+        <div className="back-link" onClick={() => navigate("/")}>
+          <ArrowLeft size={16} /> Back to Home
+        </div>
+
+        <div className="auth-form-box">
+          <h2>Welcome Back!</h2>
+          <p className="form-sub">Sign in to continue your learning adventure</p>
+
+          <label>Email</label>
+          <input type="email" placeholder="your@email.com" className="input-field" />
+
+          <label>Password</label>
+          <div style={{position:'relative'}}>
+             <input type="password" placeholder="........" className="input-field" style={{paddingRight: '45px'}} />
+             {/* Eye Icon positioned at the end and centered */}
+             <Eye size={20} style={{
+                 position:'absolute', 
+                 right:'15px', 
+                 top:'50%', 
+                 transform: 'translateY(-50%)', 
+                 color: '#64748b',
+                 cursor: 'pointer'
+             }} />
+          </div>
+          
+          <div style={{textAlign:'right', fontSize:'0.9rem', color:'#0d9488', marginTop:'15px', marginBottom:'25px', cursor:'pointer', fontWeight:'600'}}>
+             Forgot Password?
+          </div>
+
+          <button className="btn-auth blue-btn" onClick={() => navigate("/dashboard")}>Sign In</button>
+
+          <div style={{marginTop:'25px', textAlign:'center', fontSize:'0.95rem'}}>
+            Don't have an account? <span style={{color:'#0d9488', fontWeight:'bold', cursor:'pointer'}} onClick={() => navigate("/signup")}>Sign Up</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
