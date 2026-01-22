@@ -34,7 +34,7 @@ body { margin: 0; font-family: 'Quicksand', sans-serif; background-color: #f8faf
 
 /* --- Sections --- */
 .section-container { 
-  padding: 6rem 1rem; 
+  padding: 2rem 1rem; 
   max-width: 1200px; 
   margin: 0 auto; 
 }
@@ -44,7 +44,8 @@ body { margin: 0; font-family: 'Quicksand', sans-serif; background-color: #f8faf
   font-size: 2.5rem; /* Reduced slightly to fit one line */
   font-weight: 800; 
   color: #0f172a; 
-  margin-bottom: 4rem; 
+  margin-bottom: 2rem;
+  margin-top: 1rem; 
   white-space: nowrap; /* This forces the text to stay on one line */
 }
 
@@ -55,10 +56,62 @@ body { margin: 0; font-family: 'Quicksand', sans-serif; background-color: #f8faf
     white-space: normal;
   }
 }
-.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; }
-.feature-card { background: white; padding: 3rem; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-.icon-box { width: 60px; height: 60px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; margin-bottom: 1.5rem; }
-.bg-teal { background: #0d9488; } .bg-orange { background: #f97316; } .bg-blue { background: #3b82f6; } .bg-pink { background: #d946ef; }
+/* --- FORCE Single Line for "Why Choose Us" --- */
+.features-grid {
+  display: grid;
+  /* This command FORCES 4 columns no matter what. 
+     This guarantees they stay on one line on laptops. */
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 1.5rem;
+}
+
+/* Responsive: Switch to 2 columns on tablets */
+@media (max-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Responsive: Switch to 1 column on mobile phones */
+@media (max-width: 600px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* --- Fix for Colorful Icon Boxes --- */
+
+.icon-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px; /* Rounded corners */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;        /* Makes the icon itself white */
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+/* These are the background colors for the squares */
+.bg-teal   { background-color: #0d9488 !important; }
+.bg-orange { background-color: #f97316 !important; }
+.bg-blue   { background-color: #3b82f6 !important; }
+.bg-pink   { background-color: #d946ef !important; }
+
+/* Feature Card Hover Effect */
+.feature-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 24px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  transition: transform 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+}
 
 /* Subject Cards */
 .subjects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }

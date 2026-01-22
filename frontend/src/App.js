@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 // Icons
 import { 
@@ -13,7 +13,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 // Components
 import Login from "./Login";
 import Signup from "./Signup";
-import Dashboard from "./components/Dashboard";
+import Dashboard from "./components/Dashboard"; // This is your logged-in Subjects page
 import Chatbot from "./components/Chatbot";
 import { translations } from "./translations"; 
 
@@ -22,30 +22,52 @@ export default function App() {
   const [language, setLanguage] = useState("English");
   const [showLangMenu, setShowLangMenu] = useState(false);
   
+  // --- NEW: Authentication State ---
+  // We check if the user is logged in (you can use localStorage or a real auth check)
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+
   const navigate = useNavigate();
   const location = useLocation(); 
 
-  // Translations
   const t = translations[language]; 
   const languages = ["English", "Hindi", "Telugu"];
 
-  // Page Checks
+  // Helper to handle navigation
+  const handleProtectedClick = (destination) => {
+    if (isLoggedIn) {
+      navigate(destination);
+    } else {
+      navigate("/login");
+    }
+  };
+
   const isHomePage = location.pathname === "/";
-  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
 
   return (
     <div className="app-root">
       
-      {/* ==================== HOME PAGE CONTENT ==================== */}
+      {/* ==================== HOME PAGE LAYOUT ==================== */}
       {isHomePage && (
         <>
           {/* 1. Navbar */}
           <nav className="navbar">
             <div className="logo"><Gamepad2 size={36} /> VidyaQuest</div>
+            
             <div className="nav-links">
-              <span>{t.nav.home}</span><span>{t.nav.subjects}</span><span>{t.nav.games}</span><span>{t.nav.leaderboard}</span>
+              {/* Home stays as is */}
+              <span onClick={() => navigate("/")}>{t.nav.home}</span>
+              
+              {/* SUBJECTS: Checks if logged in */}
+              <span onClick={() => handleProtectedClick("/dashboard")}>{t.nav.subjects}</span>
+              
+              {/* GAMES: Checks if logged in */}
+              <span onClick={() => handleProtectedClick("/dashboard")}>{t.nav.games}</span>
+              
+              <span onClick={() => handleProtectedClick("/dashboard")}>{t.nav.leaderboard}</span>
             </div>
+
             <div className="auth-buttons">
+              {/* Language Selector */}
               <div style={{position: 'relative'}}>
                 <button className="btn-lang" onClick={() => setShowLangMenu(!showLangMenu)}>
                   <Globe size={18} /> {language} <ChevronDown size={14} />
@@ -60,13 +82,23 @@ export default function App() {
                   </div>
                 )}
               </div>
-              <span className="signin-link" onClick={() => navigate("/login")}>{t.nav.signin}</span>
-              <button className="btn-primary" onClick={() => navigate("/signup")}>{t.nav.signup}</button>
+
+              {/* Toggle Buttons based on login status */}
+              {!isLoggedIn ? (
+                <>
+                  <span className="signin-link" onClick={() => navigate("/login")}>{t.nav.signin}</span>
+                  <button className="btn-primary" onClick={() => navigate("/signup")}>{t.nav.signup}</button>
+                </>
+              ) : (
+                 <button className="btn-primary" onClick={() => navigate("/dashboard")}>Go to Dashboard</button>
+              )}
             </div>
           </nav>
 
-          {/* 2. Hero Section */}
+          {/* ... (Your existing Hero, Why Choose Us, Explore Subjects, CTA sections here - NO CHANGE NEEDED) ... */}
+          {/* Just for brevity, I'm hiding the middle sections in this snippet, but KEEP them in your file! */}
           <header className="hero-section">
+            {/* ... Keep your existing Hero code ... */}
             <span className="grade-badge">{t.hero.badge}</span>
             <h1 className="hero-title">{t.hero.title1} <br /><span style={{color:'#3b82f6'}}>{t.hero.title2}</span></h1>
             <p className="hero-subtitle">{t.hero.subtitle}</p>
@@ -74,14 +106,13 @@ export default function App() {
               <button className="btn-primary" onClick={() => navigate("/signup")}>{t.hero.btnStart}</button>
               <button className="btn-secondary">{t.hero.btnDemo}</button>
             </div>
-            <div className="stats-row">
+             <div className="stats-row">
               <div className="stat-card"><span className="stat-num">10K+</span>{t.hero.stat1}</div>
               <div className="stat-card"><span className="stat-num">500+</span>{t.hero.stat2}</div>
               <div className="stat-card"><span className="stat-num">1000+</span>{t.hero.stat3}</div>
             </div>
           </header>
 
-          {/* 3. Why Choose Us */}
           <section className="section-container">
             <h2 className="section-header">{t.why.title}</h2>
             <div className="features-grid">
@@ -92,13 +123,13 @@ export default function App() {
             </div>
           </section>
 
-          {/* 4. Explore Subjects */}
           <section className="section-container" style={{background:'#f8fafc'}}>
             <h2 className="section-header">{t.subjects.title}</h2>
             <div className="subjects-grid">
-              <SubjectCard t={t} title={t.subjects.math} count="45" icon={<Calculator/>} color="grad-math" xp="1,200" progress={65} stars={5} />
-              <SubjectCard t={t} title={t.subjects.science} count="52" icon={<Atom/>} color="grad-science" xp="980" progress={42} stars={4} />
-              <SubjectCard t={t} title={t.subjects.tech} count="38" icon={<Monitor/>} color="grad-tech" xp="650" progress={28} stars={3} />
+              <SubjectCard t={t} title={t.subjects.math} count="45" icon={<Calculator/>} color="grad-math" xp="1,200" progress={65} stars={5} onCardClick={() => handleProtectedClick("/dashboard")} />
+              <SubjectCard t={t} title={t.subjects.science} count="52" icon={<Atom/>} color="grad-science" xp="980" progress={42} stars={4} onCardClick={() => handleProtectedClick("/dashboard")}/>
+              <SubjectCard t={t} title={t.subjects.tech} count="38" icon={<Monitor/>} color="grad-tech" xp="650" progress={28} stars={3} onCardClick={() => handleProtectedClick("/dashboard")}/>
+              
               <div className="subject-card card-locked">
                 <div className="blur-layer"></div>
                 <div className="lock-content">
@@ -106,15 +137,15 @@ export default function App() {
                   <div>{t.subjects.complete}</div>
                 </div>
               </div>
-              <SubjectCard t={t} title={t.subjects.social} count="48" icon={<Globe/>} color="grad-social" xp="720" progress={35} stars={3} />
-              <SubjectCard t={t} title={t.subjects.eng} count="55" icon={<Languages/>} color="grad-english" xp="850" progress={50} stars={4} btnColor="#db2777" />
-              <SubjectCard t={t} title={t.subjects.hindi} count="50" icon={<BookOpen/>} color="grad-hindi" xp="780" progress={40} stars={4} />
-              <SubjectCard t={t} title={t.subjects.arts} count="35" icon={<Palette/>} color="grad-arts" xp="500" progress={20} stars={2} />
-              <SubjectCard t={t} title={t.subjects.pe} count="30" icon={<Dumbbell/>} color="grad-pe" xp="450" progress={25} stars={2} />
+
+              <SubjectCard t={t} title={t.subjects.social} count="48" icon={<Globe/>} color="grad-social" xp="720" progress={35} stars={3} onCardClick={() => handleProtectedClick("/dashboard")}/>
+              <SubjectCard t={t} title={t.subjects.eng} count="55" icon={<Languages/>} color="grad-english" xp="850" progress={50} stars={4} btnColor="#db2777" onCardClick={() => handleProtectedClick("/dashboard")}/>
+              <SubjectCard t={t} title={t.subjects.hindi} count="50" icon={<BookOpen/>} color="grad-hindi" xp="780" progress={40} stars={4} onCardClick={() => handleProtectedClick("/dashboard")}/>
+              <SubjectCard t={t} title={t.subjects.arts} count="35" icon={<Palette/>} color="grad-arts" xp="500" progress={20} stars={2} onCardClick={() => handleProtectedClick("/dashboard")}/>
+              <SubjectCard t={t} title={t.subjects.pe} count="30" icon={<Dumbbell/>} color="grad-pe" xp="450" progress={25} stars={2} onCardClick={() => handleProtectedClick("/dashboard")}/>
             </div>
           </section>
 
-          {/* 5. CTA Banner */}
           <section className="cta-section">
              <div className="cta-badge">{t.cta.badge}</div>
              <h2 className="cta-title">{t.cta.title}</h2>
@@ -122,18 +153,11 @@ export default function App() {
              <button className="btn-white" onClick={() => navigate("/signup")}>{t.cta.btn}</button>
           </section>
 
-          {/* 6. Footer */}
           <footer className="footer">
              <div className="footer-grid">
                 <div>
                    <div className="logo" style={{color:'white', marginBottom:'1.5rem'}}><Gamepad2 /> VidyaQuest</div>
                    <p style={{lineHeight:'1.6', opacity:0.8}}>{t.footer.desc}</p>
-                   <div className="socials">
-                      <div className="social-icon"><Facebook size={18}/></div>
-                      <div className="social-icon"><Twitter size={18}/></div>
-                      <div className="social-icon"><Instagram size={18}/></div>
-                      <div className="social-icon"><Youtube size={18}/></div>
-                   </div>
                 </div>
                 <div><h4>{t.footer.links}</h4><ul><li>{t.subjects.title}</li><li>{t.nav.games}</li><li>{t.nav.leaderboard}</li></ul></div>
                 <div><h4>{t.footer.support}</h4><ul><li>{t.footer.contact}</li></ul></div>
@@ -151,32 +175,31 @@ export default function App() {
         </>
       )}
 
-      {/* --- Chatbot (HIDDEN ON LOGIN/SIGNUP) --- */}
-      {!isAuthPage && (
-        <>
-          <div className="chatbot-float-btn" onClick={() => setShowChat(!showChat)}>
-            {showChat ? <X size={30} /> : <MessageCircle size={30} />}
-          </div>
-          {showChat && (
-            <div className="chatbot-window">
-              <div className="chatbot-header"><span>Vidya AI Tutor</span><X style={{cursor:'pointer'}} onClick={() => setShowChat(false)}/></div>
-              <div className="chatbot-content"><Chatbot /></div>
-            </div>
-          )}
-        </>
+      {/* --- Chatbot (Global) --- */}
+      <div className="chatbot-float-btn" onClick={() => setShowChat(!showChat)}>
+        {showChat ? <X size={30} /> : <MessageCircle size={30} />}
+      </div>
+      {showChat && (
+        <div className="chatbot-window">
+          <div className="chatbot-header"><span>Vidya AI Tutor</span><X style={{cursor:'pointer'}} onClick={() => setShowChat(false)}/></div>
+          <div className="chatbot-content"><Chatbot /></div>
+        </div>
       )}
 
-      {/* --- Routes --- */}
+      {/* --- ROUTES --- */}
       <Routes>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        
+        {/* Pass setIsLoggedIn to Login so it can update the state upon success */}
+        <Route path="/login" element={<Login onSuccess={() => { setIsLoggedIn(true); navigate("/dashboard"); }} />} />
+        
+        <Route path="/signup" element={<Signup onSuccess={() => navigate("/login")} />} />
       </Routes>
     </div>
   );
 }
 
-// Components
+// --- HELPER COMPONENTS ---
 function FeatureCard({ icon, color, title, text }) {
   return (
     <div className="feature-card">
@@ -187,9 +210,10 @@ function FeatureCard({ icon, color, title, text }) {
   );
 }
 
-function SubjectCard({ t, title, count, icon, color, xp, progress, stars, btnColor }) {
+// Updated SubjectCard to accept onClick
+function SubjectCard({ t, title, count, icon, color, xp, progress, stars, btnColor, onCardClick }) {
   return (
-    <div className={`subject-card ${color}`}>
+    <div className={`subject-card ${color}`} onClick={onCardClick} style={{cursor: 'pointer'}}>
       <div>
         <div className="subject-header">
            <div className="sub-icon">{icon}</div>
